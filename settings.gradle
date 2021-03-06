@@ -1,0 +1,3 @@
+include ':module-interface'
+include ':module'
+rootProject.name = "ezmanager"
