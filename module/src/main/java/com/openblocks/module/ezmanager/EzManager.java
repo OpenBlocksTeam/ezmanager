@@ -3,6 +3,7 @@ package com.openblocks.module.ezmanager;
 import android.content.Context;
 
 import com.openblocks.moduleinterface.OpenBlocksModule;
+import com.openblocks.moduleinterface.callbacks.Logger;
 import com.openblocks.moduleinterface.exceptions.NotSupportedException;
 import com.openblocks.moduleinterface.models.OpenBlocksFile;
 import com.openblocks.moduleinterface.models.OpenBlocksRawProject;
@@ -25,6 +26,8 @@ public class EzManager implements OpenBlocksModule.ProjectManager {
     WeakReference<Context> context;
     OpenBlocksConfig config;
 
+    Logger logger;
+
     File files_dir;
     File projects_folder;
 
@@ -34,14 +37,18 @@ public class EzManager implements OpenBlocksModule.ProjectManager {
     }
 
     @Override
-    public void initialize(Context context) {
+    public void initialize(Context context, Logger logger) {
         this.context = new WeakReference<>(context);
+        this.logger = logger;
+
+        logger.info(this.getClass(), "Initialize");
+
         files_dir = context.getFilesDir();
         projects_folder = new File(context.getFilesDir(), "projects");
 
         // Initialize our config
         config = new OpenBlocksConfig();
-        config.addItem("", new OpenBlocksConfigItem("", "", "", OpenBlocksConfig.Type.INPUT_NUMBER));
+        // config.addItem("", new OpenBlocksConfigItem("", "", "", OpenBlocksConfig.Type.INPUT_NUMBER));
     }
 
 
@@ -59,11 +66,15 @@ public class EzManager implements OpenBlocksModule.ProjectManager {
     @Override
     public void saveProject(OpenBlocksRawProject project) {
 
+        logger.info(this.getClass(), "Saving project");
+
         // Simply save the project in it's raw form
         File project_folder = new File(files_dir, project.ID);
 
         // Create the folder for this project if it doesn't exists
         if (!project_folder.exists()) {
+            logger.info(this.getClass(), "Project folder doesn't exists, mkdir");
+
             project_folder.mkdir();
         }
 
@@ -72,26 +83,35 @@ public class EzManager implements OpenBlocksModule.ProjectManager {
                 FileUtil.writeFile(new File(project_folder, file.name), file.data);
             } catch (IOException e) {
                 e.printStackTrace();
+
+                logger.warn(this.getClass(), "IOException occurred while writing file: " + e.getMessage());
             }
         }
     }
 
     @Override
     public OpenBlocksRawProject getProject(String project_id) {
+        logger.info(this.getClass(), "Getting a project");
+
         // Simply read the files
         OpenBlocksRawProject project = new OpenBlocksRawProject();
         project.files = new ArrayList<>();
 
         File project_folder = new File(files_dir, project_id);
 
-        if (!project_folder.exists())
+        if (!project_folder.exists()) {
+            logger.warn(this.getClass(), "Project folder doesn't exist, returning null");
+
             return null;
+        }
 
         for (File file : project_folder.listFiles()) {
             try {
                 project.files.add(new OpenBlocksFile(FileUtil.readFile(file), file.getName()));
             } catch (IOException e) {
                 e.printStackTrace();
+
+                logger.warn(this.getClass(), "IOException occurred whilst trying to getting a project: " + e.getMessage());
             }
         }
 
@@ -104,8 +124,11 @@ public class EzManager implements OpenBlocksModule.ProjectManager {
 
         File project_folder = projects_folder;
 
-        if (!project_folder.exists())
+        if (!project_folder.exists()) {
+            logger.warn(this.getClass(), "Project folder doesn't exist, returning null");
+
             return null;
+        }
 
         for (File project : project_folder.listFiles()) {
             ArrayList<OpenBlocksFile> project_files = new ArrayList<>();
@@ -115,6 +138,8 @@ public class EzManager implements OpenBlocksModule.ProjectManager {
                     project_files.add(new OpenBlocksFile(FileUtil.readFile(project_file), project_file.getName()));
                 } catch (IOException e) {
                     e.printStackTrace();
+
+                    logger.warn(this.getClass(), "IOException occurred whilst trying to list projects: " + e.getMessage());
                 }
             }
 
@@ -124,14 +149,23 @@ public class EzManager implements OpenBlocksModule.ProjectManager {
         return projects;
     }
 
+    @Override
+    public boolean projectExists(String project_id) {
+        return new File(projects_folder, project_id).exists();
+    }
+
 
     @Override
     public OpenBlocksFile exportProject(OpenBlocksRawProject openBlocksRawProject) throws NotSupportedException {
+        logger.warn(this.getClass(), "exportProject is called, but it's not supported");
+
         throw new NotSupportedException("Exporting project is not supported yet");
     }
 
     @Override
     public OpenBlocksRawProject importProject(OpenBlocksFile openBlocksFile) throws NotSupportedException {
+        logger.warn(this.getClass(), "importProject is called, but it's not supported");
+
         throw new NotSupportedException("Importing project is not supported yet");
     }
 
