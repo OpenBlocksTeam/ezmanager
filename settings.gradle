@@ -1,3 +1,4 @@
-include ':module-interface'
 include ':module'
+include ':module-interface'
+project(':module-interface').projectDir = new File(rootDir, 'openblocks-module-interface/lib/')
 rootProject.name = "ezmanager"
