@@ -1,0 +1,13 @@
+{
+  "jar": "out.jar",
+  "modules": [
+    {
+      "name": "EzManager",
+      "description": "A simple, and easy Project Manager module for OpenBlocks; https://github.com/OpenBlocksTeam/ezmanager",
+      "classpath": "com.openblocks.module.EzManager",
+      "version": 1,
+      "lib_version": 1,
+      "type": "PROJECT_MANAGER"
+    } 
+  ]
+}
