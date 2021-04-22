@@ -1,5 +1,5 @@
 {
-  "jar": "out.jar",
+  "jar": "ezmanager-1.jar",
   "modules": [
     {
       "name": "EzManager",
