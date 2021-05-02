@@ -1,2 +1,2 @@
-# OpenBlocks Module Template
-An Intellij IDEA template project used to create OpenBlocks modules
+# ezmanager
+A simple, and easy Project Manager module for OpenBlocks
